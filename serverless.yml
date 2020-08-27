@@ -1,0 +1,65 @@
+service: myserverlessproject
+
+custom:
+  settings:
+    TODOS_TABLE: todos
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: caroline
+  environment: ${self:custom.settings}
+  region: eu-north-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.TODOS_TABLE}"
+
+functions:
+  createTodo:
+    handler: handler.createTodo
+    events:
+      - http:
+          path: /todo
+          method: post
+  getAllTodos:
+    handler: handler.getAllTodos
+    events:
+      - http:
+          path: /todos
+          method: get
+  updateTodo:
+    handler: handler.updateTodo
+    events:
+      - http:
+          path: /todo/{id}
+          method: put
+  deleteTodo:
+    handler: handler.deleteTodo
+    events:
+      - http:
+          path: /todo/{id}
+          method: delete
+
+resources:
+  Resources:
+    TodosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: "id"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "id"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.settings.TODOS_TABLE}
