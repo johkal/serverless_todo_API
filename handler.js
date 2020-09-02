@@ -1,3 +1,5 @@
+//Bryt ut handler.js till fler filer
+
 "use strict";
 const AWS = require("aws-sdk");
 const db = new AWS.DynamoDB.DocumentClient({ apiVersion: "2012-10-08" });
@@ -5,6 +7,7 @@ const uuid = require("uuid");
 const todosTable = process.env.TODOS_TABLE;
 
 // Create a response
+// Ännu mer generic? Custom headers etc?
 function response(statusCode, message) {
   return {
     statusCode: statusCode,
@@ -12,10 +15,11 @@ function response(statusCode, message) {
   };
 }
 
+// Syftet med kommentarer? Varför, inte vad
 // Create a todo
 module.exports.createTodo = (event, context, callback) => {
   const reqBody = JSON.parse(event.body);
-
+  
   if (
     !reqBody.todo ||
     reqBody.todo.trim() === "" ||
@@ -42,6 +46,8 @@ module.exports.createTodo = (event, context, callback) => {
     location: reqBody.location,
     description: reqBody.description,
   };
+  // Vad är en "todo.todo"? Titel?
+  // Typescript (för backend)?
 
   return db
     .put({
@@ -70,6 +76,9 @@ module.exports.getAllTodos = (event, context, callback) => {
 
 // Update a todo
 module.exports.updateTodo = (event, context, callback) => {
+
+  //Saknar validering
+
   const id = event.pathParameters.id;
   const body = JSON.parse(event.body);
   const paramName = body.paramName;
