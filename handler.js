@@ -91,7 +91,10 @@ module.exports.updateTodo = (event, context, callback) => {
     .update(params)
     .promise()
     .then((res) => {
-      callback(null, response(200, res));
+      callback(
+        null,
+        response(200, { message: "Your changes have been added" })
+      );
     })
     .catch((err) => callback(null, response(err.statusCode, err)));
 };
